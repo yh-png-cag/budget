@@ -9,8 +9,8 @@
 <body><main>
 <header class="top"><div><div class="eyebrow">PERSONAL FINANCE / 01</div><h1 class="title">変動費ログ</h1></div><input id="month" class="month" type="month" aria-label="表示する月"></header>
 <section class="cards" aria-live="polite">
- <div class="card"><div class="label">今日の支出</div><div class="amount" id="todaySpent">¥0</div><div class="sub">目安 ¥3,125 / 日</div><div class="track"><div class="fill" id="todayBar"></div></div><div class="split"><span id="todayRate">0% 使用</span><span id="todayLeft">残り ¥2,684</span></div></div>
- <div class="card"><div class="label">今月の支出</div><div class="amount" id="monthSpent">¥0</div><div class="sub">予算 ¥93,880 / 月</div><div class="track"><div class="fill" id="monthBar"></div></div><div class="split"><span id="monthRate">0% 使用</span><span id="monthLeft">残り ¥80,519</span></div></div>
+ <div class="card"><div class="label">今日の支出</div><div class="amount" id="todaySpent">¥0</div><div class="sub">目安 <span id="dailyBudgetLabel">¥3,125</span> / 日</div><div class="track"><div class="fill" id="todayBar"></div></div><div class="split"><span id="todayRate">0% 使用</span><span id="todayLeft">残り ¥2,684</span></div></div>
+ <div class="card"><div class="label">今月の支出</div><div class="amount" id="monthSpent">¥0</div><div class="sub">予算 <span id="monthlyBudgetLabel">¥93,880</span> / 月</div><div class="track"><div class="fill" id="monthBar"></div></div><div class="split"><span id="monthRate">0% 使用</span><span id="monthLeft">残り ¥80,519</span></div></div>
  <div class="card wide"><div class="label">今月のペース</div><div class="amount" id="paceAmount">—</div><div class="sub" id="paceText">月の予算に対する支出ペースを表示します。</div></div>
 </section>
 <h2 class="section">今月の内訳</h2>
@@ -26,7 +26,7 @@
  <div class="field"><label for="memo">内容（任意）</label><input id="memo" maxlength="100" placeholder="例：コーヒー"></div>
  <button class="primary" type="submit">＋ 支出を記録</button>
 </form>
-<div class="notice">予算は月 ¥80,519、1日あたりの目安は ¥2,684 で設定しています。設定変更は下の「予算を変更」からできます。</div>
+<div class="notice">変動費予算は手取り ¥320,000 − 固定費・積立 ¥226,120 ＝ 月 ¥93,880 が基準です。予算設定を変更すると、月予算・日予算・食費以外の予算にも反映されます。</div>
 <div class="list-head"><h2 class="section">支出履歴</h2><button id="export" class="secondary">CSVを書き出す</button></div>
 <div id="entries" class="entries"></div>
 <h2 class="section">固定費の確認</h2>
