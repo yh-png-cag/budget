@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f7f4">
+<title>余剰金額の記録</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#222;background:#f7f7f4}
+*{box-sizing:border-box}body{margin:0;padding:24px 16px 48px}.app{max-width:620px;margin:auto}
+h1{font-size:1.55rem;margin:8px 0 6px}p.sub{color:#666;margin:0 0 22px;font-size:.92rem}
+.panel{background:#fff;border:1px solid #e6e5df;border-radius:16px;padding:18px;margin:14px 0}
+label{display:block;font-size:.9rem;margin:12px 0 6px;color:#444}
+input,textarea,button{font:inherit;width:100%;border-radius:10px;padding:12px;border:1px solid #d8d7d0;background:#fff}
+button{cursor:pointer;border:0;background:#262626;color:#fff;font-weight:600;margin-top:14px}
+.total-label{color:#666;font-size:.9rem}.total{font-size:2rem;font-weight:700;margin-top:4px}
+.entry{display:flex;gap:12px;align-items:flex-start;border-top:1px solid #eee;padding:13px 0}
+.entry:first-child{border-top:0}.details{flex:1;min-width:0}.date{font-size:.82rem;color:#777}.memo{margin-top:3px;overflow-wrap:anywhere}.amount{font-weight:700;white-space:nowrap}
+.delete{width:auto;padding:6px 9px;margin:0;background:#eee;color:#333;font-size:.8rem}
+.actions{display:flex;gap:8px}.actions button{flex:1}.actions .secondary{background:#eee;color:#222}
+.empty{color:#777;padding:10px 0}
+</style>
+</head>
+<body><main class="app">
+<h1>余剰金額の記録</h1><p class="sub">余ったお金を記録して、合計を確認できます。</p>
+<section class="panel"><div class="total-label">記録した余剰金額の合計</div><div class="total" id="total">¥0</div></section>
+<form class="panel" id="form">
+<label for="date">日付</label><input id="date" type="date" required>
+<label for="amount">余剰金額（円）</label><input id="amount" type="number" min="1" step="1" placeholder="例：3000" required>
+<label for="memo">メモ（任意）</label><textarea id="memo" rows="2" placeholder="例：今月の食費の残り"></textarea>
+<button type="submit">記録する</button>
+</form>
+<section class="panel"><h2 style="font-size:1.05rem;margin:0 0 10px">記録一覧</h2><div id="entries"></div><div class="actions"><button type="button" class="secondary" id="export">CSVを書き出す</button><button type="button" class="secondary" id="clear">全記録を削除</button></div></section>
+<p style="font-size:.8rem;color:#777;line-height:1.6">記録はこのブラウザ内に保存されます。同じ端末・ブラウザで利用してください。ブラウザのデータを消去すると記録も消えるため、必要に応じてCSVを保存してください。</p>
+</main>
+<script>
+const KEY='surplus-money-records-v1';
+const $=id=>document.getElementById(id);
+const yen=n=>'¥'+Number(n).toLocaleString('ja-JP');
+let records=[];try{records=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+function save(){localStorage.setItem(KEY,JSON.stringify(records));render()}
+function render(){
+ $('total').textContent=yen(records.reduce((s,r)=>s+Number(r.amount),0));
+ const root=$('entries');root.innerHTML='';
+ if(!records.length){root.innerHTML='<div class="empty">まだ記録がありません。</div>';return}
+ [...records].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).forEach(r=>{
+  const row=document.createElement('div');row.className='entry';
+  const details=document.createElement('div');details.className='details';
+  const date=document.createElement('div');date.className='date';date.textContent=r.date;
+  const memo=document.createElement('div');memo.className='memo';memo.textContent=r.memo||'メモなし';
+  const amount=document.createElement('div');amount.className='amount';amount.textContent=yen(r.amount);
+  const del=document.createElement('button');del.className='delete';del.type='button';del.textContent='削除';del.addEventListener('click',()=>{records=records.filter(x=>x.id!==r.id);save()});
+  details.append(date,memo);row.append(details,amount,del);root.append(row);
+ });
+}
+$('date').value=new Date().toLocaleDateString('sv-SE');
+$('form').addEventListener('submit',e=>{e.preventDefault();const amount=Number($('amount').value);if(!Number.isFinite(amount)||amount<=0)return;records.push({id:Date.now(),date:$('date').value,amount, memo:$('memo').value.trim()});save();$('amount').value='';$('memo').value='';});
+$('export').addEventListener('click',()=>{const rows=[['日付','余剰金額（円）','メモ'],...records.map(r=>[r.date,r.amount,r.memo])];const csv='\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='余剰金額の記録.csv';a.click();URL.revokeObjectURL(a.href)});
+$('clear').addEventListener('click',()=>{if(confirm('すべての記録を削除します。この操作は取り消せません。')){records=[];save()}});
+render();
+</script></body></html>
